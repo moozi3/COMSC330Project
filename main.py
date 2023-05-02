@@ -72,7 +72,7 @@ def num_grades(keys):
             grade_counts[grade] += 1
         else:
             grade_counts[grade] = 1
-    grade_order = ['A', 'A-', 'B+', 'B', 'C', 'D', 'F']
+    grade_order = ['A', 'A-', 'B+', 'B','B-','C+','C','C-','D+','D','D-','F']
     grade_strings = []
     for grade in grade_order:
         if grade in grade_counts:

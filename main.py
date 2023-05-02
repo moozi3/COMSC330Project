@@ -44,13 +44,16 @@ def convert_grade(grade):
 
 def num_grades(keys):
     linef = []
-    with open(keys, "r") as f:
+    filepath = app.getFilePath()
+    path = filepath.rpartition('/')[0] + '/' + keys
+    with open(path, "r") as f:
         sections = f.readlines()
         sections.pop(0)
 
     for x in range(len(sections)):
         sections[x] = sections[x].strip()
-        with open(sections[x], "r") as f:
+        path2 = filepath.rpartition('/')[0] + '/' + sections[x]
+        with open(path2, "r") as f:
             lines = f.readlines()
             lines.pop(0)
             linef.extend(lines)
@@ -82,15 +85,17 @@ def num_grades(keys):
     return result
 
 def getSTDEV(keys):
-    lines = []
     linef = []
-    with open(keys, "r") as f:
+    filepath = app.getFilePath()
+    path = filepath.rpartition('/')[0] + '/' + keys
+    with open(path, "r") as f:
         sections = f.readlines()
         sections.pop(0)
 
         for x in range(len(sections)):
             sections[x] = sections[x].strip()
-            with open(sections[x], "r") as f:
+            path2 = filepath.rpartition('/')[0] + '/' + sections[x]
+            with open(path2, "r") as f:
                 lines = f.readlines()
                 lines.pop(0)
                 linef.extend(lines)
@@ -114,13 +119,16 @@ def getSTDEV(keys):
 
 def get_GRP_GPA(keys):
     linef = []
-    with open(keys, "r") as f:
+    filepath = app.getFilePath()
+    path = filepath.rpartition('/')[0] + '/' + keys
+    with open(path, "r") as f:
         sections = f.readlines()
         sections.pop(0)
 
     for x in range(len(sections)):
         sections[x] = sections[x].strip()
-        with open(sections[x], "r") as f:
+        path2 = filepath.rpartition('/')[0] + '/' + sections[x]
+        with open(path2, "r") as f:
             lines = f.readlines()
             lines.pop(0)
             linef.extend(lines)
@@ -139,13 +147,16 @@ def get_GRP_GPA(keys):
     avg = sum(grades) / len(grades)
     return avg
 def get_sec_gpa(keys):
-    with open(keys, "r") as f:
+    filepath = app.getFilePath()
+    path = filepath.rpartition('/')[0] + '/' + keys
+    with open(path, "r") as f:
         sections = f.readlines()
         sections.pop(0)
     for x in range(len(sections)):
             sections[x] = sections[x].strip()
     value = app.get_selection2()
-    with open(sections[value], "r") as f:
+    path2 = filepath.rpartition('/')[0] + '/' + sections[value]
+    with open(path2, "r") as f:
         lines = f.readlines()
         lines.pop(0)
     for j in range(len(lines)):
@@ -188,8 +199,9 @@ def create_dict(path):
     return group_files
 
 def num_courses(keys):
-
-    with open(keys, "r") as f:
+    filepath = app.getFilePath()
+    path = filepath.rpartition('/')[0] + '/' + keys
+    with open(path, "r") as f:
         sections = f.readlines()
     sections.pop(0)
     for y in range(len(sections)):
@@ -201,14 +213,17 @@ def num_courses(keys):
 
 def num_students(keys):
     count = 0
-    with open(keys, "r") as f:
+    filepath = app.getFilePath()
+    path = filepath.rpartition('/')[0] + '/' + keys
+
+    with open(path, "r") as f:
         sections = f.readlines()
     sections.pop(0)
     for i in range(len(sections)):
         sections[i] = sections[i].strip()
-
     for x in range(len(sections)):
-        with open(sections[x], "r") as f:
+        path2 = filepath.rpartition('/')[0] + '/' + sections[x]
+        with open(path2, "r") as f:
             lines = f.readlines()
         lines.pop(0)
         length = len(lines)
@@ -218,7 +233,10 @@ def num_students(keys):
 
 
 def getSections(keys):
-    with open(keys, "r") as f:
+    filepath = app.getFilePath()
+    path = filepath.rpartition('/')[0] + '/' + keys
+
+    with open(path, "r") as f:
         sections = f.readlines()
         sections.pop(0)
         for i in range(len(sections)):
@@ -226,15 +244,18 @@ def getSections(keys):
     return sections
 
 def getGRPHist(keys):
-    gpa_list = []
     linesf = []
-    with open(keys, "r") as f:
+    filepath = app.getFilePath()
+    path = filepath.rpartition('/')[0] + '/' + keys
+
+    with open(path, "r") as f:
         sections = f.readlines()
     sections.pop(0)
 
     for y in range(len(sections)):
         sections[y] = sections[y].strip()
-        with open(sections[y], "r") as f:
+        path2 = filepath.rpartition('/')[0] + '/' + sections[y]
+        with open(path2, "r") as f:
             lines = f.readlines()
         lines.pop(0)
         for j in range(len(lines)):
@@ -268,14 +289,18 @@ def getGRPHist(keys):
     return grade_dict
 
 def getSECHIST(keys):
-    with open(keys, "r") as f:
+    filepath = app.getFilePath()
+    path = filepath.rpartition('/')[0] + '/' + keys
+
+    with open(path, "r") as f:
         sections = f.readlines()
         sections.pop(0)
     for x in range(len(sections)):
         sections[x] = sections[x].strip()
     value = app.get_selection2()
 
-    with open(sections[value], "r") as f:
+    path2 = filepath.rpartition('/')[0] + '/' + sections[value]
+    with open(path2, "r") as f:
         lines = f.readlines()
         lines.pop(0)
     for j in range(len(lines)):
@@ -306,16 +331,18 @@ def getSECHIST(keys):
     plt.title('Section')
     return grade_dict
 def getSecData(keys):
-    gpa_list = []
-    linesf = []
-    with open(keys, "r") as f:
+    filepath = app.getFilePath()
+    path = filepath.rpartition('/')[0] + '/' + keys
+    with open(path, "r") as f:
         sections = f.readlines()
     sections.pop(0)
     value = app.get_selection2()
 
     for y in range(len(sections)):
         sections[y] = sections[y].strip()
-    with open(sections[value], "r") as f:
+
+    path2 = filepath.rpartition('/')[0] + '/' + sections[value]
+    with open(path2, "r") as f:
         lines = f.readlines()
     lines.pop(0)
     for j in range(len(lines)):
@@ -398,8 +425,6 @@ class root(tk.Tk):
         canvas.draw()
         return canvas
     def displayhist(self):
-
-
         self.canvas1 = self.create_canvas("Group")
         self.canvas1.get_tk_widget().place(x=300, y=280, width=450, height=200)
 

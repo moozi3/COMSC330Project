@@ -72,7 +72,7 @@ def num_grades(keys):
             grade_counts[grade] += 1
         else:
             grade_counts[grade] = 1
-    grade_order = ['A', 'A-', 'B+', 'B','B-','C+','C','C-','D+','D','D-','F']
+    grade_order = ['A', 'A-', 'B+', 'B', 'C', 'D', 'F']
     grade_strings = []
     for grade in grade_order:
         if grade in grade_counts:
@@ -128,9 +128,7 @@ def get_GRP_GPA(keys):
         linef[x] = linef[x].strip()
 
     df = pd.DataFrame(linef)
-    df.drop(0)
     df.columns = ['Data']
-    df = df.drop(0)
     df[['Last Name', 'First Name', 'Student Id', 'Grade']] = df['Data'].str.split(',', expand=True)
     df['Grade'] = df['Grade'].str.strip('"')
     df = df.drop('Data', axis=1)

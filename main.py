@@ -46,7 +46,7 @@ def num_grades(keys):
     linef = []
     with open(keys, "r") as f:
         sections = f.readlines()
-    sections.pop(0)
+        sections.pop(0)
 
     for x in range(len(sections)):
         sections[x] = sections[x].strip()
@@ -54,26 +54,32 @@ def num_grades(keys):
             lines = f.readlines()
             lines.pop(0)
             linef.extend(lines)
-    for x in range (len(linef)):
+    for x in range(len(linef)):
         linef[x] = linef[x].strip()
 
 
     df = pd.DataFrame(linef)
-    df.drop(0)
     df.columns = ['Data']
-    df = df.drop(0)
     df[['Last Name', 'First Name', 'Student Id', 'Grade']] = df['Data'].str.split(',', expand=True)
     df['Grade'] = df['Grade'].str.strip('"')
     df = df.drop('Data', axis=1)
     df['GPA'] = df['Grade'].apply(convert_grade)
     df = df[~df["Grade"].str.contains("I|W|P|NP")]
     grades = df['Grade'].tolist()
-    grades
-    order = ['A','A-','B+', 'B','B-', 'C','C-', 'D', 'F']
-    counts = [grades.count(grade) for grade in order]
-    output_list = [f"{grade}: {count}" for grade, count in zip(order, counts) if count > 0]
-    output_string = ", ".join(output_list)
-    return output_string
+    grade_counts = {}
+    for grade in grades:
+        if grade in grade_counts:
+            grade_counts[grade] += 1
+        else:
+            grade_counts[grade] = 1
+    grade_order = ['A', 'A-', 'B+', 'B', 'C', 'D', 'F']
+    grade_strings = []
+    for grade in grade_order:
+        if grade in grade_counts:
+            grade_string = grade + ': ' + str(grade_counts[grade])
+            grade_strings.append(grade_string)
+    result = ', '.join(grade_strings)
+    return result
 
 def getSTDEV(keys):
     lines = []

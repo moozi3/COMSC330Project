@@ -1,69 +1,48 @@
+from tkinter.ttk import Treeview
+
 import pandas as pd
 import tkinter as tk
 from tkinter import *
 from tkinter import filedialog
 import statistics
-
-
+import matplotlib.pyplot as plt
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+from matplotlib.figure import Figure
 
 
 def convert_grade(grade):
     if grade == 'A':
         return 4.0
     elif grade == 'A-':
-        return 3.67
+        return 3.7
     elif grade == 'B+':
-        return 3.33
+        return 3.3
     elif grade == 'B':
         return 3.0
     elif grade == 'B-':
-        return 2.67
+        return 2.7
     elif grade == 'C+':
-        return 2.33
+        return 2.3
     elif grade == 'C':
         return 2.0
     elif grade == 'C-':
-        return 1.67
+        return 1.7
     elif grade == 'D+':
-        return 1.33
+        return 1.3
     elif grade == 'D':
         return 1.0
     elif grade == 'D-':
-        return 0.67
+        return 0.7
     elif grade == 'F':
         return 0.0
     else:
         return 0.0
-def getData(df):
-    df.drop(0)
-    df.columns = ['Data']
-    df = df.drop(0)
-    df[['Last Name', 'First Name', 'Student Id', 'Grade']] = df['Data'].str.split(',', expand=True)
-    df['Grade'] = df['Grade'].str.strip('"')
-    df = df[~df["Grade"].str.contains("I|W")]
-    return df
-def getGPA():
-    df = pd.read_csv(filepath, sep='|', header=None)
-    df.drop(0)
-    df.columns = ['Data']
-    df = df.drop(0)
-    df[['Last Name', 'First Name', 'Student Id', 'Grade']] = df['Data'].str.split(',', expand=True)
-    df['Grade'] = df['Grade'].str.strip('"')
-    df = df[~df["Grade"].str.contains("I|W")]
-    df['Numerical Grade'] = df['Grade'].apply(convert_grade)
-    avg_numerical_grade = df['Numerical Grade'].mean()
-    return avg_numerical_grade
 
-def getSECGPAdf(df):
-    df[['Last Name', 'First Name', 'Student Id', 'Grade']] = df['Data'].str.split(',', expand=True)
-    df['Grade'] = df['Grade'].str.strip('"')
-    df = df[~df["Grade"].str.contains("I|W")]
-    df['Numerical Grade'] = df['Grade'].apply(convert_grade)
-    avg_numerical_grade = df['Numerical Grade'].mean()
-    return avg_numerical_grade
+
+
+
 
 def num_grades(keys):
-    line = []
     linef = []
     with open(keys, "r") as f:
         sections = f.readlines()
@@ -128,24 +107,33 @@ def getSTDEV(keys):
     return std_dev
 
 def get_GRP_GPA(keys):
-    gpa_list = []
-
+    linef = []
     with open(keys, "r") as f:
         sections = f.readlines()
-    sections.pop(0)
+        sections.pop(0)
 
-    for y in range(len(sections)):
-        sections[y] = sections[y].strip()
-        with open(sections[y], "r") as f:
+    for x in range(len(sections)):
+        sections[x] = sections[x].strip()
+        with open(sections[x], "r") as f:
             lines = f.readlines()
-        lines.pop(0)
-        for j in range(len(lines)):
-            lines[j] = lines[j].strip()
-        df = pd.DataFrame(lines, columns=['Data'])
-        gpa = (getSECGPAdf(df))
-        gpa_list.append(gpa)
-        average = sum(gpa_list) / len(gpa_list)
-    return average
+            lines.pop(0)
+            linef.extend(lines)
+    for x in range(len(linef)):
+        linef[x] = linef[x].strip()
+
+    df = pd.DataFrame(linef)
+    df.drop(0)
+    df.columns = ['Data']
+    df = df.drop(0)
+    df[['Last Name', 'First Name', 'Student Id', 'Grade']] = df['Data'].str.split(',', expand=True)
+    df['Grade'] = df['Grade'].str.strip('"')
+    df = df.drop('Data', axis=1)
+    df['GPA'] = df['Grade'].apply(convert_grade)
+    df = df[~df["Grade"].str.contains("I|W|P|NP")]
+
+    grades = df['GPA'].tolist()
+    avg = sum(grades) / len(grades)
+    return avg
 def get_sec_gpa(keys):
     with open(keys, "r") as f:
         sections = f.readlines()
@@ -166,6 +154,8 @@ def get_sec_gpa(keys):
     df['Numerical Grade'] = df['Grade'].apply(convert_grade)
     avg_numerical_grade = df['Numerical Grade'].mean()
     return avg_numerical_grade
+
+
 
 def get_z_score(keys):
     stdev = getSTDEV(keys)
@@ -221,18 +211,7 @@ def num_students(keys):
         count = length + count
     return count
 
-#create_dict("TESTRUN.RUN")
 
-def writeReport(group_files):
-    keys = list(group_files.keys())
-
-    for x in range (len(keys)):
-        group_files[keys[x]]["Number of Courses"] = (num_courses(keys[x]))
-        group_files[keys[x]]["Number of Students"] = (num_students(keys[x]))
-        group_files[keys[x]]["Average GPA"] = (get_GRP_GPA(keys[x]))
-        group_files[keys[x]]["Number of Grades"] = (num_grades(keys[x]))
-
-    return group_files
 
 def getSections(keys):
     with open(keys, "r") as f:
@@ -242,32 +221,112 @@ def getSections(keys):
             sections[i] = sections[i].strip()
     return sections
 
-"""
-#print(getGPA(pd.read_csv(openFile(), sep='|', header=None)))
-#Root
-root = Tk()
-root.title("GPA Calculator")
-root.geometry("500x800")
+def getGRPHist(keys):
+    gpa_list = []
+    linesf = []
+    with open(keys, "r") as f:
+        sections = f.readlines()
+    sections.pop(0)
 
-#Button that Opens File explorer
-button = Button(text = "Open", command = openFile)
+    for y in range(len(sections)):
+        sections[y] = sections[y].strip()
+        with open(sections[y], "r") as f:
+            lines = f.readlines()
+        lines.pop(0)
+        for j in range(len(lines)):
+            lines[j] = lines[j].strip()
+        linesf.extend(lines)
+    df = pd.DataFrame(linesf, columns=['Data'])
+    df[['Last Name', 'First Name', 'Student Id', 'Grade']] = df['Data'].str.split(',', expand=True)
+    df['Grade'] = df['Grade'].str.strip('"')
+    df = df[~df["Grade"].str.contains("I|W|P|NP")]
+    df['Numerical Grade'] = df['Grade'].apply(convert_grade)
+    data = df['Grade'].tolist()
+    grades = ['F', 'D-', 'D', 'D+', 'C-', 'C', 'C+',
+              'B-', 'B', 'B+', 'A-', 'A']
+    grade_dict = {grade: 0 for grade in grades}
 
-#TextBox that displays the chosen file
 
-textbox = Text(root,height=5, width=30)
+    # Count the frequency of each grade
+
+    for grade in data:
+        if grade in grade_dict:
+            grade_dict[grade] += 1
+
+    plt.bar(grade_dict.keys(), grade_dict.values())
+
+    # Add labels and title
+    plt.xlabel('Grades')
+    plt.ylabel('Frequency')
+    plt.title('Group')
+
+    # Display the plot
+    return grade_dict
+
+def getSECHIST(keys):
+    with open(keys, "r") as f:
+        sections = f.readlines()
+        sections.pop(0)
+    for x in range(len(sections)):
+        sections[x] = sections[x].strip()
+    value = app.get_selection2()
+
+    with open(sections[value], "r") as f:
+        lines = f.readlines()
+        lines.pop(0)
+    for j in range(len(lines)):
+        lines[j] = lines[j].strip()
+
+    df = pd.DataFrame(lines, columns=['Data'])
+    df[['Last Name', 'First Name', 'Student Id', 'Grade']] = df['Data'].str.split(',', expand=True)
+    df['Grade'] = df['Grade'].str.strip('"')
+    df = df[~df["Grade"].str.contains("I|W|P|NP")]
+    df['Numerical Grade'] = df['Grade'].apply(convert_grade)
+    data = df['Grade'].tolist()
+    grades = ['F', 'D-', 'D', 'D+', 'C-', 'C', 'C+',
+              'B-', 'B', 'B+', 'A-', 'A']
+    grade_dict = {grade: 0 for grade in grades}
 
 
-button.pack()
-textbox.pack()
-root.mainloop()
-"""
+        # Count the frequency of each grade
 
+    for grade in data:
+        if grade in grade_dict:
+            grade_dict[grade] += 1
+
+    plt.bar(grade_dict.keys(), grade_dict.values())
+
+        # Add labels and title
+    plt.xlabel('Grades')
+    plt.ylabel('Frequency')
+    plt.title('Section')
+    return grade_dict
+def getSecData(keys):
+    gpa_list = []
+    linesf = []
+    with open(keys, "r") as f:
+        sections = f.readlines()
+    sections.pop(0)
+    value = app.get_selection2()
+
+    for y in range(len(sections)):
+        sections[y] = sections[y].strip()
+    with open(sections[value], "r") as f:
+        lines = f.readlines()
+    lines.pop(0)
+    for j in range(len(lines)):
+        lines[j] = lines[j].strip()
+    df = pd.DataFrame(lines, columns=['Data'])
+    df[['Last Name', 'First Name', 'Student Id', 'Grade']] = df['Data'].str.split(',', expand=True)
+    df['Grade'] = df['Grade'].str.strip('"')
+    return df
 
 class root(tk.Tk):
     def __init__(self):
         super().__init__()
+
         self.title("GPA Calculator")
-        self.geometry("800x800")
+        self.geometry("1200x1200")
 
         #Create search button
         self.button = Button(self, text = "Open RUN", command = self.openFile)
@@ -285,15 +344,18 @@ class root(tk.Tk):
         self.button3 = Button(self, text="Z-Score", command=self.show_z_score)
         self.button3.place(x=300, y=180, width=75, height=50)
 
+        self.button4 = Button(self, text="Show", command=self.showData)
+        self.button4.place(x=375, y=180, width=75, height=50)
+
         #Create textbox that holds the file path
         self.textbox = Text(self, height=5, width=30)
         self.textbox.place(x=10, y=20, width=250, height=50)
 
-        # Create textbox2 for idk
+        # Create textbox2 for teh Z-score result
         self.textbox2 = Text(self, height=5, width=30)
         self.textbox2.place(x=500, y=180, width=250, height=50)
 
-        #Create textbox for output of dictionary
+        #Create textbox for output of GRP Results
         self.textbox3 = Text(self, height=40, width=40)
         self.textbox3.place(x=500, y=20, width=250, height=150)
         self.grp = tk.StringVar()
@@ -304,16 +366,89 @@ class root(tk.Tk):
         # Create List Box that stores the SEC files
         self.list2 = Listbox(self,exportselection=False)
         self.list2.place(x=10, y=180, width=250, height=50)
-        #keys = self.getKeys()
-        #for item in keys:
-        #    self.drop["menu"].add_command(label=item, command= self._setit(grp, item))
+       #Create a button to Output the Histogram
+        self.button4 = Button(self, text="Histogram",command = self.displayhist)
+        self.button4.place(x=300, y=240, width=75, height=30)
 
-    def writeRep2(group_files):
-        keys = list(group_files.keys())
-        values = group_files[keys[0]]
+       #Create a canvas to hold Group Histogram
+        self.canvas1 = self.create_canvas("Group")
+        self.canvas1.get_tk_widget().place(x=300, y=280, width=450, height=200)
+        #Create a cavas to hold a section histogram
+        self.canvas2 = self.create_canvas("Section")
+        self.canvas2.get_tk_widget().place(x=300, y=500, width=450, height=200)
 
-        for key, value in values.items():
-            print(key + ': ' + str(value))
+        #Create  table to hold section data
+        self.treeview = Treeview(self, show='headings')
+        self.treeview.place(x=10, y=250, width=280, height=400)
+        self.scrollbar = Scrollbar(self, orient='vertical', command=self.treeview.yview)
+        self.scrollbar.place(x=10, y=250, height=200)
+        self.treeview.configure(yscrollcommand=self.scrollbar.set)
+
+        self.protocol("WM_DELETE_WINDOW", self.close_window)
+
+    def create_canvas(self,title):
+        fig = Figure(figsize=(4, 3), dpi=100)
+        ax = fig.add_subplot(111)
+        ax.set_title(title)
+        canvas = FigureCanvasTkAgg(fig, master=self)
+        canvas.draw()
+        return canvas
+    def displayhist(self):
+
+
+        self.canvas1 = self.create_canvas("Group")
+        self.canvas1.get_tk_widget().place(x=300, y=280, width=450, height=200)
+
+        self.canvas2 = self.create_canvas("Section")
+        self.canvas2.get_tk_widget().place(x=300, y=500, width=450, height=200)
+        self.group_files = create_dict(self.getFilePath())
+
+
+        keys = list(self.group_files.keys())
+        selc = self.get_selection()
+        grade_dict = getGRPHist(keys[selc])
+
+        fig1 = self.canvas1.figure
+
+        ax1 = fig1.gca()
+        ax1.set_title(keys[selc])
+
+        ax1.bar(grade_dict.keys(), grade_dict.values())
+        self.canvas1.draw()
+
+        selc1 = self.get_selection2()
+        keys2 = getSections(keys[selc])
+        grade_dict2 = getSECHIST(keys[selc])
+        fig2 = self.canvas2.figure
+
+        ax2 = fig2.gca()
+        ax2.set_title(keys2[selc1])
+
+        ax2.bar(grade_dict2.keys(), grade_dict2.values())
+        self.canvas2.draw()
+
+
+
+    def close_window(self):
+        self.quit()
+        self.destroy()
+    def showData(self):
+        keys = self.getKeys()
+        selc = self.get_selection()
+        self.dataframe = getSecData(keys[selc])
+
+        self.treeview.delete(*self.treeview.get_children())
+
+        columns = list(self.dataframe.columns)
+        self.treeview["columns"] = columns
+        for col in columns:
+            self.treeview.heading(col, text=col)
+            self.treeview.column(col, width=100, anchor="center")
+
+        # Add data rows to Treeview
+        for row in self.dataframe.itertuples(index=False):
+            self.treeview.insert("", "end", values=row)
+
 
     def openFile(self):
         filepath = filedialog.askopenfilename()
@@ -421,6 +556,5 @@ class root(tk.Tk):
         self.textbox2.insert(tk.END, result)
 
 if __name__ == "__main__":
-
     app = root()
     app.mainloop()

@@ -11,25 +11,25 @@ def convert_grade(grade):
     if grade == 'A':
         return 4.0
     elif grade == 'A-':
-        return 3.7
+        return 3.67
     elif grade == 'B+':
-        return 3.3
+        return 3.33
     elif grade == 'B':
         return 3.0
     elif grade == 'B-':
-        return 2.7
+        return 2.67
     elif grade == 'C+':
-        return 2.3
+        return 2.33
     elif grade == 'C':
         return 2.0
     elif grade == 'C-':
-        return 1.7
+        return 1.67
     elif grade == 'D+':
-        return 1.3
+        return 1.33
     elif grade == 'D':
         return 1.0
     elif grade == 'D-':
-        return 0.7
+        return 0.67
     elif grade == 'F':
         return 0.0
     else:

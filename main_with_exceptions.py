@@ -39,9 +39,6 @@ def convert_grade(grade):
         return 0.0
 
 
-
-
-
 def num_grades(keys):
     linef = []
     filepath = app.getFilePath()
@@ -59,7 +56,6 @@ def num_grades(keys):
             linef.extend(lines)
     for x in range(len(linef)):
         linef[x] = linef[x].strip()
-
 
     df = pd.DataFrame(linef)
     df.columns = ['Data']
@@ -83,6 +79,7 @@ def num_grades(keys):
             grade_strings.append(grade_string)
     result = ', '.join(grade_strings)
     return result
+
 
 def getSTDEV(keys):
     linef = []
@@ -117,6 +114,7 @@ def getSTDEV(keys):
 
     return std_dev
 
+
 def get_GRP_GPA(keys):
     linef = []
     filepath = app.getFilePath()
@@ -146,6 +144,8 @@ def get_GRP_GPA(keys):
     grades = df['GPA'].tolist()
     avg = sum(grades) / len(grades)
     return avg
+
+
 def get_sec_gpa(keys):
     filepath = app.getFilePath()
     path = filepath.rpartition('/')[0] + '/' + keys
@@ -153,7 +153,7 @@ def get_sec_gpa(keys):
         sections = f.readlines()
         sections.pop(0)
     for x in range(len(sections)):
-            sections[x] = sections[x].strip()
+        sections[x] = sections[x].strip()
     value = app.get_selection2()
     path2 = filepath.rpartition('/')[0] + '/' + sections[value]
     with open(path2, "r") as f:
@@ -171,13 +171,13 @@ def get_sec_gpa(keys):
     return avg_numerical_grade
 
 
-
 def get_z_score(keys):
     stdev = getSTDEV(keys)
     grp_gpa = get_GRP_GPA(keys)
     sec_gpa = get_sec_gpa(keys)
-    result = (sec_gpa - grp_gpa)/stdev
+    result = (sec_gpa - grp_gpa) / stdev
     return result
+
 
 def create_dict(path):
     group_files = {}
@@ -185,18 +185,19 @@ def create_dict(path):
         groups = f.readlines()
     groups.pop(0)
 
-    #Add the GRP files from RUN file
+    # Add the GRP files from RUN file
     for i in range(len(groups)):
         groups[i] = groups[i].strip()
         group_files[groups[i]] = {}
     keys = list(group_files.keys())
-    for x in range (len(keys)):
+    for x in range(len(keys)):
         group_files[keys[x]]["Number of Courses"] = (num_courses(keys[x]))
         group_files[keys[x]]["Number of Students"] = (num_students(keys[x]))
         group_files[keys[x]]["Average GPA"] = (get_GRP_GPA(keys[x]))
         group_files[keys[x]]["Number of Grades"] = (num_grades(keys[x]))
 
     return group_files
+
 
 def num_courses(keys):
     filepath = app.getFilePath()
@@ -210,6 +211,7 @@ def num_courses(keys):
 
     count = len(set(sections))
     return count
+
 
 def num_students(keys):
     count = 0
@@ -235,7 +237,6 @@ def num_students(keys):
     return count
 
 
-
 def getSections(keys):
     filepath = app.getFilePath()
     path = filepath.rpartition('/')[0] + '/' + keys
@@ -246,6 +247,7 @@ def getSections(keys):
         for i in range(len(sections)):
             sections[i] = sections[i].strip()
     return sections
+
 
 def getGRPHist(keys):
     linesf = []
@@ -275,7 +277,6 @@ def getGRPHist(keys):
               'B-', 'B', 'B+', 'A-', 'A']
     grade_dict = {grade: 0 for grade in grades}
 
-
     # Count the frequency of each grade
 
     for grade in data:
@@ -291,6 +292,7 @@ def getGRPHist(keys):
 
     # Display the plot
     return grade_dict
+
 
 def getSECHIST(keys):
     filepath = app.getFilePath()
@@ -320,8 +322,7 @@ def getSECHIST(keys):
               'B-', 'B', 'B+', 'A-', 'A']
     grade_dict = {grade: 0 for grade in grades}
 
-
-        # Count the frequency of each grade
+    # Count the frequency of each grade
 
     for grade in data:
         if grade in grade_dict:
@@ -329,11 +330,13 @@ def getSECHIST(keys):
 
     plt.bar(grade_dict.keys(), grade_dict.values())
 
-        # Add labels and title
+    # Add labels and title
     plt.xlabel('Grades')
     plt.ylabel('Frequency')
     plt.title('Section')
     return grade_dict
+
+
 def getSecData(keys):
     filepath = app.getFilePath()
     path = filepath.rpartition('/')[0] + '/' + keys
@@ -362,6 +365,7 @@ def getSecData(keys):
 
     return df
 
+
 class root(tk.Tk):
     def __init__(self):
         super().__init__()
@@ -369,21 +373,21 @@ class root(tk.Tk):
         self.title("GPA Calculator")
         self.geometry("920x800")
 
-        #Create search button
-        self.button = Button(self, text = "Open RUN", command = self.openFile)
-        self.button.place(x=590, y= 30, width=75, height=40)
+        # Create search button
+        self.button = Button(self, text="Open RUN", command=self.openFile)
+        self.button.place(x=590, y=30, width=75, height=40)
 
         # Create GRP Report button
-        self.button = Button(self, text="GRP Report", command = self.calc)
+        self.button = Button(self, text="GRP Report", command=self.calc)
         self.button.place(x=450, y=100, width=75, height=50)
 
         # Create textbox for output of GRP Results
         self.textbox3 = Text(self)
         self.textbox3.place(x=530, y=100, width=250, height=100)
-        #self.grp = tk.StringVar()
+        # self.grp = tk.StringVar()
 
-        #Create an open button to open the GRP
-        self.button2 = Button(self, text="Open GRP", command = self.showSEC)
+        # Create an open button to open the GRP
+        self.button2 = Button(self, text="Open GRP", command=self.showSEC)
         self.button2.place(x=275, y=100, width=75, height=50)
 
         # Create an open button to calc the z_score
@@ -394,58 +398,55 @@ class root(tk.Tk):
         self.textbox2 = Text(self)
         self.textbox2.place(x=530, y=210, width=250, height=30)
 
-        #Button to show the Selected Section Data
+        # Button to show the Selected Section Data
         self.button4 = Button(self, text="Open SEC", command=self.showData)
         self.button4.place(x=275, y=180, width=75, height=50)
 
-        #Create textbox that holds the file path
+        # Create textbox that holds the file path
         self.textbox = Text(self)
         self.textbox.place(x=10, y=30, width=575, height=40)
 
         # Label the FilePath Box
-        self.label = Label(self,text = "File Path")
-        self.label.place(x=10,y=7)
+        self.label = Label(self, text="File Path")
+        self.label.place(x=10, y=7)
 
-
-
-
-        #Create List Box that stores the GRP files
-        self.list = Listbox(self,exportselection=False)
+        # Create List Box that stores the GRP files
+        self.list = Listbox(self, exportselection=False)
         self.list.place(x=10, y=100, width=250, height=50)
 
         # Create List Box that stores the SEC files
-        self.list2 = Listbox(self,exportselection=False)
+        self.list2 = Listbox(self, exportselection=False)
         self.list2.place(x=10, y=180, width=250, height=50)
 
-        #Create a button to Output the Histogram
-        self.button4 = Button(self, text="Histogram",command = self.displayhist)
+        # Create a button to Output the Histogram
+        self.button4 = Button(self, text="Histogram", command=self.displayhist)
         self.button4.place(x=450, y=265, width=75, height=30)
 
-        #Create a canvas to hold Group Histogram
+        # Create a canvas to hold Group Histogram
         self.canvas1 = self.create_canvas("Group")
         self.canvas1.get_tk_widget().place(x=450, y=310, width=450, height=200)
 
-        #Create a cavas to hold a section histogram
+        # Create a cavas to hold a section histogram
         self.canvas2 = self.create_canvas("Section")
         self.canvas2.get_tk_widget().place(x=450, y=530, width=450, height=200)
 
-        #Create  table to hold section data
+        # Create  table to hold section data
         self.treeview = Treeview(self, show='headings')
         self.treeview.place(x=10, y=250, width=340, height=480)
-        self.scrollbar = Scrollbar(self,troughcolor='red',orient='vertical', command=self.treeview.yview)
+        self.scrollbar = Scrollbar(self, troughcolor='red', orient='vertical', command=self.treeview.yview)
         self.scrollbar.place(x=350, y=250, height=200)
         self.treeview.configure(yscrollcommand=self.scrollbar.set)
 
-
         self.protocol("WM_DELETE_WINDOW", self.close_window)
 
-    def create_canvas(self,title):
-        fig = Figure(figsize=(4, 3), dpi=100)
-        ax = fig.add_subplot(111)
+    def create_canvas(self, title):
+        self.fig = Figure(figsize=(4, 3), dpi=100)
+        ax = self.fig.add_subplot(111)
         ax.set_title(title)
-        canvas = FigureCanvasTkAgg(fig, master=self)
+        canvas = FigureCanvasTkAgg(self.fig, master=self)
         canvas.draw()
         return canvas
+
     def displayhist(self):
         try:
             self.canvas1 = self.create_canvas("Group")
@@ -454,7 +455,6 @@ class root(tk.Tk):
             self.canvas2 = self.create_canvas("Section")
             self.canvas2.get_tk_widget().place(x=450, y=530, width=450, height=200)
             self.group_files = create_dict(self.getFilePath())
-
 
             keys = list(self.group_files.keys())
             selc = self.get_selection()
@@ -478,11 +478,11 @@ class root(tk.Tk):
 
             ax2.bar(grade_dict2.keys(), grade_dict2.values())
             self.canvas2.draw()
-       
+
+        except TypeError:
+            pass
         except FileNotFoundError:
             self.popup("Please open a RUN file")
-
-
 
     def close_window(self):
         self.quit()
@@ -509,10 +509,20 @@ class root(tk.Tk):
             self.popup("Please open a RUN file")
         except TypeError:
             self.popup("Please Select a SEC file")
-
+    def clear(self):
+        self.canvas1.get_tk_widget().destroy()
+        self.canvas1 = self.create_canvas("Group")
+        self.canvas1.get_tk_widget().place(x=450, y=310, width=450, height=200)
+        self.list.delete(0, END)
+        self.list2.delete(0, END)
+        self.textbox.delete(1.0, END)
+        self.textbox2.delete(1.0, END)
+        self.textbox3.delete(1.0, END)
+        self.treeview.delete(*self.treeview.get_children())
 
     def openFile(self):
         try:
+            self.clear()
             filepath = filedialog.askopenfilename()
             s1 = "\\"
             s2 = "/"
@@ -522,7 +532,6 @@ class root(tk.Tk):
                 self.textbox.delete(1.0, END)
                 self.textbox.insert(END, filepath)
                 self.list.delete(0, END)
-
 
                 group_files = {}
 
@@ -543,7 +552,7 @@ class root(tk.Tk):
         except IndexError:
             self.popup("Please select a .RUN file type")
 
-    def popup(self,text):
+    def popup(self, text):
         popup = tk.Toplevel(self)
         popup.title("Popup")
 
@@ -557,10 +566,8 @@ class root(tk.Tk):
         popup.geometry(f"{width}x{height}+{x}+{y}")
 
         # Add a label with the message
-        label = tk.Label(popup, text = text)
+        label = tk.Label(popup, text=text)
         label.pack()
-
-
 
     def get_selection(self):
         selection = self.list.curselection()
@@ -568,14 +575,16 @@ class root(tk.Tk):
             return int(selection[0])
         else:
             return None
+
     def get_selection2(self):
         selection = self.list2.curselection()
         if selection:
             return int(selection[0])
         else:
             return None
+
     def getFilePath(self):
-        value=self.textbox.get("1.0","end-1c")
+        value = self.textbox.get("1.0", "end-1c")
         return value
 
     def getKeys(self):
@@ -613,9 +622,6 @@ class root(tk.Tk):
         keys = sections
         return keys
 
-
-
-
     def calc(self):
         try:
             self.group_files = create_dict(self.getFilePath())
@@ -629,6 +635,7 @@ class root(tk.Tk):
             self.popup("Please Open a RUN file")
         except TypeError:
             self.popup("Please select a GRP file")
+
     def showSEC(self):
         try:
             keys = self.getKeys()
@@ -642,7 +649,6 @@ class root(tk.Tk):
         except TypeError:
             self.popup("Please select a GRP file")
 
-
     def show_z_score(self):
         try:
             self.textbox2.delete(1.0, END)
@@ -654,6 +660,7 @@ class root(tk.Tk):
             self.popup("Please select both a GRP and SEC file")
         except FileNotFoundError:
             self.popup("Please open a RUN file")
+
 
 if __name__ == "__main__":
     app = root()

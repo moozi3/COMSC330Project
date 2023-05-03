@@ -1,5 +1,4 @@
 from tkinter.ttk import Treeview
-
 import pandas as pd
 import tkinter as tk
 from tkinter import *
@@ -225,8 +224,12 @@ def num_students(keys):
         path2 = filepath.rpartition('/')[0] + '/' + sections[x]
         with open(path2, "r") as f:
             lines = f.readlines()
-        lines.pop(0)
-        length = len(lines)
+        df = pd.DataFrame(lines)
+        df.columns = ['Data']
+        df[['Last Name', 'First Name', 'Student Id', 'Grade']] = df['Data'].str.split(',', expand=True)
+        df["Student Id"] = df["Student Id"].str.strip('"')
+        stid = df["Student Id"].tolist()
+        length = len(set(stid))
         count = length + count
     return count
 
@@ -350,6 +353,12 @@ def getSecData(keys):
     df = pd.DataFrame(lines, columns=['Data'])
     df[['Last Name', 'First Name', 'Student Id', 'Grade']] = df['Data'].str.split(',', expand=True)
     df['Grade'] = df['Grade'].str.strip('"')
+    df['Last Name'] = df['Last Name'].str.strip('"')
+    df['First Name'] = df['First Name'].str.strip('"')
+    df['Student Id'] = df['Student Id'].str.strip('"')
+
+    df = df.drop('Data', axis=1)
+
     return df
 
 class root(tk.Tk):
@@ -357,39 +366,48 @@ class root(tk.Tk):
         super().__init__()
 
         self.title("GPA Calculator")
-        self.geometry("1200x1200")
+        self.geometry("920x800")
 
         #Create search button
         self.button = Button(self, text = "Open RUN", command = self.openFile)
-        self.button.place(x=300, y=20, width=75, height=50)
+        self.button.place(x=590, y= 30, width=75, height=40)
 
-        # Create calculate button
-        self.button = Button(self, text="Calculate", command = self.calc)
-        self.button.place(x=375, y=100, width=75, height=50)
+        # Create GRP Report button
+        self.button = Button(self, text="GRP Report", command = self.calc)
+        self.button.place(x=450, y=100, width=75, height=50)
+
+        # Create textbox for output of GRP Results
+        self.textbox3 = Text(self)
+        self.textbox3.place(x=530, y=100, width=250, height=100)
+        #self.grp = tk.StringVar()
 
         #Create an open button to open the GRP
         self.button2 = Button(self, text="Open GRP", command = self.showSEC)
-        self.button2.place(x=300, y=100, width=75, height=50)
+        self.button2.place(x=275, y=100, width=75, height=50)
 
         # Create an open button to calc the z_score
         self.button3 = Button(self, text="Z-Score", command=self.show_z_score)
-        self.button3.place(x=300, y=180, width=75, height=50)
+        self.button3.place(x=450, y=210, width=75, height=30)
 
-        self.button4 = Button(self, text="Show", command=self.showData)
-        self.button4.place(x=375, y=180, width=75, height=50)
+        # Create textbox2 for the Z-score result
+        self.textbox2 = Text(self)
+        self.textbox2.place(x=530, y=210, width=250, height=30)
+
+        #Button to show the Selected Section Data
+        self.button4 = Button(self, text="Open SEC", command=self.showData)
+        self.button4.place(x=275, y=180, width=75, height=50)
 
         #Create textbox that holds the file path
-        self.textbox = Text(self, height=5, width=30)
-        self.textbox.place(x=10, y=20, width=250, height=50)
+        self.textbox = Text(self)
+        self.textbox.place(x=10, y=30, width=575, height=40)
 
-        # Create textbox2 for teh Z-score result
-        self.textbox2 = Text(self, height=5, width=30)
-        self.textbox2.place(x=500, y=180, width=250, height=50)
+        # Label the FilePath Box
+        self.label = Label(self,text = "File Path")
+        self.label.place(x=10,y=7)
 
-        #Create textbox for output of GRP Results
-        self.textbox3 = Text(self, height=40, width=40)
-        self.textbox3.place(x=500, y=20, width=250, height=150)
-        self.grp = tk.StringVar()
+
+
+
         #Create List Box that stores the GRP files
         self.list = Listbox(self,exportselection=False)
         self.list.place(x=10, y=100, width=250, height=50)
@@ -397,23 +415,26 @@ class root(tk.Tk):
         # Create List Box that stores the SEC files
         self.list2 = Listbox(self,exportselection=False)
         self.list2.place(x=10, y=180, width=250, height=50)
-       #Create a button to Output the Histogram
-        self.button4 = Button(self, text="Histogram",command = self.displayhist)
-        self.button4.place(x=300, y=240, width=75, height=30)
 
-       #Create a canvas to hold Group Histogram
+        #Create a button to Output the Histogram
+        self.button4 = Button(self, text="Histogram",command = self.displayhist)
+        self.button4.place(x=450, y=265, width=75, height=30)
+
+        #Create a canvas to hold Group Histogram
         self.canvas1 = self.create_canvas("Group")
-        self.canvas1.get_tk_widget().place(x=300, y=280, width=450, height=200)
+        self.canvas1.get_tk_widget().place(x=450, y=310, width=450, height=200)
+
         #Create a cavas to hold a section histogram
         self.canvas2 = self.create_canvas("Section")
-        self.canvas2.get_tk_widget().place(x=300, y=500, width=450, height=200)
+        self.canvas2.get_tk_widget().place(x=450, y=530, width=450, height=200)
 
         #Create  table to hold section data
         self.treeview = Treeview(self, show='headings')
-        self.treeview.place(x=10, y=250, width=280, height=400)
-        self.scrollbar = Scrollbar(self, orient='vertical', command=self.treeview.yview)
-        self.scrollbar.place(x=10, y=250, height=200)
+        self.treeview.place(x=10, y=250, width=340, height=480)
+        self.scrollbar = Scrollbar(self,troughcolor='red',orient='vertical', command=self.treeview.yview)
+        self.scrollbar.place(x=350, y=250, height=200)
         self.treeview.configure(yscrollcommand=self.scrollbar.set)
+
 
         self.protocol("WM_DELETE_WINDOW", self.close_window)
 
@@ -426,10 +447,10 @@ class root(tk.Tk):
         return canvas
     def displayhist(self):
         self.canvas1 = self.create_canvas("Group")
-        self.canvas1.get_tk_widget().place(x=300, y=280, width=450, height=200)
+        self.canvas1.get_tk_widget().place(x=450, y=310, width=450, height=200)
 
         self.canvas2 = self.create_canvas("Section")
-        self.canvas2.get_tk_widget().place(x=300, y=500, width=450, height=200)
+        self.canvas2.get_tk_widget().place(x=450, y=530, width=450, height=200)
         self.group_files = create_dict(self.getFilePath())
 
 

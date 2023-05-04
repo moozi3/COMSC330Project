@@ -7,7 +7,6 @@ import statistics
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
-from tkinter import messagebox
 
 
 def convert_grade(grade):
@@ -89,20 +88,18 @@ def getSTDEV(keys):
         sections = f.readlines()
         sections.pop(0)
 
-        for x in range(len(sections)):
-            sections[x] = sections[x].strip()
-            path2 = filepath.rpartition('/')[0] + '/' + sections[x]
-            with open(path2, "r") as f:
-                lines = f.readlines()
-                lines.pop(0)
-                linef.extend(lines)
+    for x in range(len(sections)):
+        sections[x] = sections[x].strip()
+        path2 = filepath.rpartition('/')[0] + '/' + sections[x]
+        with open(path2, "r") as f:
+            lines = f.readlines()
+            lines.pop(0)
+            linef.extend(lines)
     for x in range(len(linef)):
         linef[x] = linef[x].strip()
 
     df = pd.DataFrame(linef)
-    df.drop(0)
     df.columns = ['Data']
-    df = df.drop(0)
     df[['Last Name', 'First Name', 'Student Id', 'Grade']] = df['Data'].str.split(',', expand=True)
     df['Grade'] = df['Grade'].str.strip('"')
     df = df.drop('Data', axis=1)
@@ -143,6 +140,7 @@ def get_GRP_GPA(keys):
 
     grades = df['GPA'].tolist()
     avg = sum(grades) / len(grades)
+    avg = round(avg, 2)
     return avg
 
 
@@ -176,6 +174,7 @@ def get_z_score(keys):
     grp_gpa = get_GRP_GPA(keys)
     sec_gpa = get_sec_gpa(keys)
     result = (sec_gpa - grp_gpa) / stdev
+    result = round(result, 3)
     return result
 
 
@@ -285,12 +284,10 @@ def getGRPHist(keys):
 
     plt.bar(grade_dict.keys(), grade_dict.values())
 
-    # Add labels and title
     plt.xlabel('Grades')
     plt.ylabel('Frequency')
     plt.title('Group')
 
-    # Display the plot
     return grade_dict
 
 
@@ -322,15 +319,12 @@ def getSECHIST(keys):
               'B-', 'B', 'B+', 'A-', 'A']
     grade_dict = {grade: 0 for grade in grades}
 
-    # Count the frequency of each grade
-
     for grade in data:
         if grade in grade_dict:
             grade_dict[grade] += 1
 
     plt.bar(grade_dict.keys(), grade_dict.values())
 
-    # Add labels and title
     plt.xlabel('Grades')
     plt.ylabel('Frequency')
     plt.title('Section')
@@ -384,7 +378,6 @@ class root(tk.Tk):
         # Create textbox for output of GRP Results
         self.textbox3 = Text(self)
         self.textbox3.place(x=530, y=100, width=250, height=100)
-        # self.grp = tk.StringVar()
 
         # Create an open button to open the GRP
         self.button2 = Button(self, text="Open GRP", command=self.showSEC)
@@ -502,7 +495,6 @@ class root(tk.Tk):
                 self.treeview.heading(col, text=col)
                 self.treeview.column(col, width=100, anchor="center")
 
-            # Add data rows to Treeview
             for row in self.dataframe.itertuples(index=False):
                 self.treeview.insert("", "end", values=row)
         except FileNotFoundError:
@@ -513,6 +505,11 @@ class root(tk.Tk):
         self.canvas1.get_tk_widget().destroy()
         self.canvas1 = self.create_canvas("Group")
         self.canvas1.get_tk_widget().place(x=450, y=310, width=450, height=200)
+
+        self.canvas2.get_tk_widget().destroy()
+        self.canvas2 = self.create_canvas("Section")
+        self.canvas2.get_tk_widget().place(x=450, y=530, width=450, height=200)
+
         self.list.delete(0, END)
         self.list2.delete(0, END)
         self.textbox.delete(1.0, END)
@@ -539,14 +536,13 @@ class root(tk.Tk):
                     groups = f.readlines()
                 groups.pop(0)
 
-                # Add the GRP files from RUN file
                 for i in range(len(groups)):
                     groups[i] = groups[i].strip()
                     group_files[groups[i]] = {}
                 keys = list(group_files.keys())
 
-                for element in keys:
-                    self.list.insert(tk.END, element)
+                for group in keys:
+                    self.list.insert(tk.END, group)
             else:
                 self.popup("Please select a .RUN file type")
         except IndexError:
@@ -555,17 +551,11 @@ class root(tk.Tk):
     def popup(self, text):
         popup = tk.Toplevel(self)
         popup.title("Popup")
-
-        # Calculate the desired position
         x = self.winfo_x() + self.winfo_width() // 2 - popup.winfo_width() // 2
         y = self.winfo_y() + self.winfo_height() // 2 - popup.winfo_height() // 2
-
-        # Set the position of the popup window
         width = 300
         height = 25
         popup.geometry(f"{width}x{height}+{x}+{y}")
-
-        # Add a label with the message
         label = tk.Label(popup, text=text)
         label.pack()
 
@@ -655,6 +645,13 @@ class root(tk.Tk):
             keys1 = self.getKeys()
             selc1 = self.get_selection()
             result = get_z_score(keys1[selc1])
+
+            if(result > 2 or result < -2):
+                result = str(result)
+                result = result + ": Significant"
+            else:
+                result = str(result)
+                result = result + ": Not Significant"
             self.textbox2.insert(tk.END, result)
         except TypeError:
             self.popup("Please select both a GRP and SEC file")
